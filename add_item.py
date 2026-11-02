@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """用法: python3 add_item.py <feed: ai|trade> <标题> <正文文件路径>
-把一篇早报加到 feed，最多保留 30 篇，然后提交并推送。"""
+把一篇早报加到 feed，最多保留 300 篇，然后提交并推送。"""
 import sys, html, datetime, subprocess, json, os
 feed, title, body_path = sys.argv[1], sys.argv[2], sys.argv[3]
 names = {"ai": "AI 新动向入门早报", "trade": "交易入门早报"}
@@ -12,7 +12,7 @@ body = open(body_path, encoding="utf-8").read().strip()
 now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
 iid = now.strftime("%Y%m%d%H%M%S")
 items.insert(0, {"id": iid, "title": title, "body": body, "date": now.strftime("%a, %d %b %Y %H:%M:%S +0900")})
-items = items[:30]
+items = items[:300]
 json.dump(items, open(store, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 os.makedirs(feed, exist_ok=True)
 out = []
