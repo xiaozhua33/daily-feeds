@@ -3,7 +3,7 @@
 把一篇早报加到 feed，最多保留 300 篇，然后提交并推送。"""
 import sys, html, datetime, subprocess, json, os
 feed, title, body_path = sys.argv[1], sys.argv[2], sys.argv[3]
-names = {"ai": "AI 新动向入门早报", "trade": "交易入门早报"}
+names = {"ai": "AI 新动向入门早报", "trade": "交易入门早报", "paper": "论文入门版"}
 base = "https://xiaozhua33.github.io/daily-feeds"
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 store = f"{feed}.json"
