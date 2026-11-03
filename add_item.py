@@ -3,12 +3,18 @@
    或: python3 add_item.py --rebuild <feed> [feed...]  只重建 xml/html 并推送
 把一篇早报加到 feed，最多保留 300 篇，然后提交并推送。
 可选: --no-podcast 不同步播客; --no-push 只本地提交不推送(播客也 --no-push)。
-推送成功后自动: publish.py --show ai --season N (ai=1 paper=2 trade=3 biz=4)，失败只写 /workspace/podcast/logs/auto.log。"""
+推送成功后自动: publish.py --show ai --season N (ai=1 paper=2 trade=3 biz=4, biz 书的精华=5)
+   --no-rss / DAILY_FEEDS_NO_RSS=1: 不更新 daily-feeds RSS，只生成播客（默认关闭），失败只写 /workspace/podcast/logs/auto.log。"""
 import sys, html, datetime, subprocess, json, os
 NO_PODCAST = "--no-podcast" in sys.argv; NO_PUSH = "--no-push" in sys.argv
-sys.argv = [a for a in sys.argv if a not in ("--no-podcast", "--no-push")]
+# --no-rss (or env DAILY_FEEDS_NO_RSS=1): skip the daily-feeds RSS/html/git step entirely, only make the podcast episode. Off by default.
+NO_RSS = "--no-rss" in sys.argv or os.environ.get("DAILY_FEEDS_NO_RSS") == "1"
+sys.argv = [a for a in sys.argv if a not in ("--no-podcast", "--no-push", "--no-rss")]
 PODCAST = os.environ.get("PODCAST_DIR", "/workspace/podcast")
-SEASON = {"ai": 1, "paper": 2, "trade": 3, "biz": 4}
+SEASON = {"ai": 1, "paper": 2, "trade": 3, "biz": 4}  # biz items titled 书的精华/读书 -> 5
+def season_for(feed, title):
+    if feed == "biz" and any(k in title for k in ("书的精华", "读书", "好书")): return 5
+    return SEASON[feed]
 def podcast_log(msg):
     os.makedirs(f"{PODCAST}/logs", exist_ok=True)
     with open(f"{PODCAST}/logs/auto.log", "a", encoding="utf-8") as f:
@@ -18,7 +24,7 @@ def to_podcast(feed, iid, title, body):
         sp = f"{PODCAST}/scripts/auto-{feed}-{iid}.md"
         os.makedirs(os.path.dirname(sp), exist_ok=True)
         open(sp, "w", encoding="utf-8").write(body + "\n")
-        cmd = [sys.executable, f"{PODCAST}/publish.py", "--show", "ai", "--season", str(SEASON[feed]), "--title", title, sp]
+        cmd = [sys.executable, f"{PODCAST}/publish.py", "--show", "ai", "--season", str(season_for(feed, title)), "--title", title, sp]
         if NO_PUSH: cmd.append("--no-push")
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
         podcast_log(f"{feed} {title!r} rc={r.returncode} {(r.stdout + r.stderr).strip()[-500:]}")
@@ -49,10 +55,13 @@ if sys.argv[1] == "--rebuild":
 else:
     feed, title, body_path = sys.argv[1], sys.argv[2], sys.argv[3]
     store = f"{feed}.json"
-    items = json.load(open(store)) if os.path.exists(store) else []
     body = open(body_path, encoding="utf-8").read().strip()
     now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
     iid = now.strftime("%Y%m%d%H%M%S")
+    if NO_RSS:
+        if feed in SEASON and not NO_PODCAST: to_podcast(feed, iid, title, body)
+        print("podcast only (--no-rss)"); sys.exit(0)
+    items = json.load(open(store)) if os.path.exists(store) else []
     items.insert(0, {"id": iid, "title": title, "body": body, "date": now.strftime("%a, %d %b %Y %H:%M:%S +0900")})
     items = items[:300]
     json.dump(items, open(store, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
