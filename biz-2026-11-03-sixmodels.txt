@@ -8,7 +8,7 @@
 
 谁付钱？是想招人的公司。求职者不用付钱。
 
-钱怎么进来？一开始他连网站都没认真写，就用一张谷歌表单收集职位，然后免费发布。后来意外上了科技论坛 Hacker News 的首页，流量一下涌进来。有了人气，他才开始对发布职位收费。
+钱怎么进来？一开始他连网站都没认真写，就用一张谷歌表单收集职位，然后免费发布。后来意外上了一个热门科技论坛的首页，流量一下涌进来。有了人气，他才开始对发布职位收费。
 
 赚了多少？原文标题说，从一张谷歌表单起步，一个月做到一千美元营收。
 
@@ -93,5 +93,4 @@
 本文仅作商业模式学习，不构成任何投资或经营建议。
 
 资料来源：
-黑客生意经 HackerBiz，hackerbiz.qiaomu.ai
-案例页：case/12748208 OldGeekJobs，case/14671070 Scott's Cheap Flights，case/12798767 Instapainting，case/21157404 Keycult，case/23613719 Livewire，case/14090063 Indie Hackers
+案例：OldGeekJobs、Scott's Cheap Flights、Instapainting、Keycult、Livewire、Indie Hackers
